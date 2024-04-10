@@ -62,7 +62,7 @@ struct TBSScanner : pattern_scanner
         while (Pattern::Scan(patternDesc))
             (void) 0;
 
-        Pattern::Results tbsResults = patternDesc.mShared.mResultAccesor.Results();
+        Pattern::Results tbsResults = patternDesc.mShared.mResultAccesor.ResultsGet();
         std::vector<const byte*> benchResults;
 
         benchResults.reserve(tbsResults.size());
