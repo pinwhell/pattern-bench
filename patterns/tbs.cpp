@@ -1,8 +1,10 @@
-#include <TBS.hpp>
+#define TBS_RESULT_TYPE const byte*
+
 #include <pattern_entry.h>
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <TBS.hpp>
 
 using namespace TBS;
 
@@ -62,15 +64,7 @@ struct TBSScanner : pattern_scanner
         while (Pattern::Scan(patternDesc))
             (void) 0;
 
-        Pattern::Results tbsResults = patternDesc.mShared.mResultAccesor.ResultsGet();
-        std::vector<const byte*> benchResults;
-
-        benchResults.reserve(tbsResults.size());
-
-        for (auto res : tbsResults)
-            benchResults.emplace_back((const byte*)res);
-
-        return benchResults;
+        return patternDesc.mShared.mResult;
     }
 
     virtual const char* GetName() const override
