@@ -2,6 +2,12 @@
 
 #define TBS_CONTAINER_MAX_SIZE 256
 
+#ifdef _WIN32
+#define FINLINE __forceinline 
+#else 
+#define FINLINE inline
+#endif
+
 #include <pattern_entry.h>
 #include <string>
 #include <sstream>
@@ -21,7 +27,8 @@ struct TBSScanner : pattern_scanner
         : sharedDesc(Pattern::EScan::SCAN_ALL)
     {}
 
-    __forceinline std::vector<const byte*> _Scan(const byte* pattern, const char* mask, const byte* data, size_t length) // Removing Const ID
+    FINLINE std::vector<const byte*> _Scan(
+        const byte* pattern, const char* mask, const byte* data, size_t length) // Removing Const ID
     {
         sharedDesc.mResult.clear();
         Pattern::Description patternDesc(sharedDesc, "_", data, data + length, emptyResTf, pattern, mask);
