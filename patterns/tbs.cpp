@@ -1,5 +1,7 @@
 #define TBS_RESULT_TYPE const byte*
 
+#define TBS_CONTAINER_MAX_SIZE 256
+
 #include <pattern_entry.h>
 #include <string>
 #include <sstream>
@@ -8,7 +10,7 @@
 
 using namespace TBS;
 
-void TBSCacheFlush(State& state)
+void TBSCacheFlush(State<>& state)
 {
     state.mSharedDescriptions.clear();
 }
@@ -16,24 +18,13 @@ void TBSCacheFlush(State& state)
 struct TBSScanner : pattern_scanner
 {
     TBSScanner()
-        : templateBuilder(state
-            .PatternBuilder()
-            .setUID("UID").setScanType(Pattern::EScan::SCAN_ALL))
+        : sharedDesc(Pattern::EScan::SCAN_ALL)
     {}
 
-    virtual std::vector<const byte*> Scan(
-        const byte* pattern, const char* mask, const byte* data, size_t length) const override
+    __forceinline std::vector<const byte*> _Scan(const byte* pattern, const char* mask, const byte* data, size_t length) // Removing Const ID
     {
-        TBSCacheFlush(const_cast<State&>(state));
-
-        Pattern::Description patternDesc = 
-            templateBuilder
-            .Clone()
-            .setPatternRaw(pattern)
-            .setMask(mask)
-            .setScanStart(data)
-            .setScanEnd(data + length)
-            .Build();
+        sharedDesc.mResult.clear();
+        Pattern::Description patternDesc(sharedDesc, "_", data, data + length, emptyResTf, pattern, mask);
 
         while (Pattern::Scan(patternDesc))
             (void) 0;
@@ -41,13 +32,20 @@ struct TBSScanner : pattern_scanner
         return patternDesc.mShared.mResult;
     }
 
+    virtual std::vector<const byte*> Scan(
+        const byte* pattern, const char* mask, const byte* data, size_t length) const override
+    {
+        return const_cast<TBSScanner*>(this)->_Scan(pattern, mask, data, length);
+    }
+
     virtual const char* GetName() const override
     {
         return "TBS";
     }
 
-    State state;
-    Pattern::DescriptionBuilder templateBuilder;
+    State<> state;
+    TBS::Vector<Pattern::ResultTransformer> emptyResTf;
+    Pattern::SharedDescription sharedDesc;
 };
 
 REGISTER_PATTERN(TBSScanner);
