@@ -16,33 +16,18 @@
 
 using namespace TBS;
 
-void TBSCacheFlush(State<>& state)
-{
-    state.mSharedDescriptions.clear();
-}
-
 struct TBSScanner : pattern_scanner
 {
     TBSScanner()
         : sharedDesc(Pattern::EScan::SCAN_ALL)
     {}
 
-    FINLINE std::vector<const byte*> _Scan(
-        const byte* pattern, const char* mask, const byte* data, size_t length) // Removing Const ID
-    {
-        sharedDesc.mResult.clear();
-        Pattern::Description patternDesc(sharedDesc, "_", data, data + length, emptyResTf, pattern, mask);
-
-        while (Pattern::Scan(patternDesc))
-            (void) 0;
-
-        return patternDesc.mShared.mResult;
-    }
-
     virtual std::vector<const byte*> Scan(
         const byte* pattern, const char* mask, const byte* data, size_t length) const override
     {
-        return const_cast<TBSScanner*>(this)->_Scan(pattern, mask, data, length);
+        Pattern::Results res;
+        Light::Scan(data, data + length, res, pattern, mask);
+        return res;
     }
 
     virtual const char* GetName() const override
