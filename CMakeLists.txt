@@ -23,8 +23,7 @@ add_executable(${PROJECT_NAME}
     patterns/mrexodia.cpp
     patterns/darth_ton.cpp
     patterns/std_regex.cpp
-    patterns/tbs.cpp
- "patterns/tbs.cpp")
+    patterns/tbs.cpp)
 
 add_subdirectory(vendor EXCLUDE_FROM_ALL)
 

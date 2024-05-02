@@ -23,13 +23,12 @@ struct TBSScanner : pattern_scanner
     TBSScanner()
         : sharedDesc(Pattern::EScan::SCAN_ALL)
     {
-        res.reserve(10000);
+        res.reserve(100000);
     }
 
     virtual std::vector<const byte*> Scan(
         const byte* pattern, const char* mask, const byte* data, size_t length) const override
     {
-        res.clear();
         Light::Scan(data, data + length, res, pattern, mask);
         return res;
     }
